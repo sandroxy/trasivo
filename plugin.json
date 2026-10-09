@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "trasivo",
+  "displayName": "Trasivo",
+  "version": "0.1.0",
+  "repository": "https://github.com/sandroxy/trasivo.git",
+  "license": "Apache-2.0",
+  "native": {
+    "android": {
+      "group": "io.github.sandroxy",
+      "artifacts": ["trasivo", "trasivo-storage", "trasivo-ui"],
+      "minimumSdk": 21,
+      "compileSdk": 36,
+      "okhttp": "5.4.0",
+      "okio": "3.18.2"
+    },
+    "ios": {
+      "modules": ["Trasivo", "TrasivoStorage", "TrasivoUI"],
+      "minimumVersion": "13.0"
+    }
+  }
+}

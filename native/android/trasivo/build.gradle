@@ -1,0 +1,6 @@
+dependencies {
+    api "com.squareup.okhttp3:okhttp:${rootProject.ext.trasivoManifest.native.android.okhttp}"
+    implementation "com.squareup.okio:okio:${rootProject.ext.trasivoManifest.native.android.okio}"
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "com.squareup.okhttp3:mockwebserver3:${rootProject.ext.trasivoManifest.native.android.okhttp}"
+}
