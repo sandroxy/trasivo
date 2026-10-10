@@ -16,7 +16,7 @@ xcodebuild -scheme TrasivoStorage -destination 'generic/platform=iOS' \
   -derivedDataPath .build/ios-device CODE_SIGNING_ALLOWED=NO build
 ```
 
-Android unit tests use a loopback HTTP server. Swift logic tests run on macOS, including loopback URLSession tests through `tests/fixtures/server.py`. macOS test execution does not declare a macOS UI product. Generic iOS builds compile the platform code without launching a device. Logic checks cannot verify photo permissions, document providers, gesture handling, lifecycle or visual layout on hardware.
+Android unit tests use a loopback HTTP server. Swift logic tests run on macOS, including loopback URLSession tests through `tests/fixtures/server.py`, storage media-type checks using generated images, and temporary resource naming and lifetime checks. Storage tests do not request Photos access or write to a photo library. macOS test execution does not declare a macOS UI or storage product. Generic iOS builds compile the platform code without launching a device. Logic checks cannot verify photo permissions, document providers, gesture handling, lifecycle or visual layout on hardware.
 
 For independent consumption without the UI module, run `./gradlew :trasivo:testReleaseUnitTest :trasivo-storage:assembleRelease` from `native/android`, and `swift build --target Trasivo --scratch-path .build/logic` from the repository root. The `TrasivoStorage` generic iOS build above also compiles the core and storage without a dependency on `TrasivoUI`. These checks verify module independence; switching the overlay off in a consumer exercises the separate presentation-lifecycle contract.
 

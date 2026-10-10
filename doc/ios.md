@@ -17,6 +17,10 @@ let taskID = center.enqueue(try TransferRequest(title: "photo.jpg", direction: .
 
 Ask for photo authorization before enqueueing this example. `PhotoLibraryAccess.request` requires `NSPhotoLibraryAddUsageDescription`; supporting iOS 13 also requires `NSPhotoLibraryUsageDescription`. Provide meaningful localized usage descriptions in the host. iOS 14+ requests add-only access. The destination reports success only after Photos commits the resource. Use `.video` for video files.
 
+Image types are read from the file contents using Image I/O; the original bytes are passed to Photos without re-encoding. For videos, `filename` must have the correct movie extension, such as `.mp4`, `.mov`, or `.m4v`. The destination supplies an explicit resource type and stages a temporary hard link with that type's extension: setting `originalFilename` or the type alone does not make an unknown file URL extension acceptable to Photos. The link avoids another full media copy before Photos imports it and is removed after Photos finishes. Direct callers of `save` must supply an app-owned local file in a writable directory on a volume that supports hard links, as the HTTP downloader does; the source path and bytes remain unchanged.
+
+Photos still validates the media before committing it. Unrecognized media types, preparation failures, and failed imports report `destination_failed`; native errors record only their domain and code in the `io.github.sandroxy.trasivo` / `Photos` system log, without filenames, paths, or error payloads.
+
 `FileDestination(url:)` writes a new file in app-owned local storage. Its parent must exist; the destination volume must support hard links, as normal app containers do. It stages the copy alongside the destination, then publishes without replacing an existing path. Export a saved app file with the host's document picker or share sheet when the user wants a Files location. A custom `DownloadDestination` may implement another destination, but must complete only after that save finishes.
 
 ## Uploads
