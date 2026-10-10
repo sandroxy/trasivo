@@ -6,6 +6,8 @@ Native upload and download tasks with an optional floating indicator and transfe
 
 Trasivo separates task ownership, HTTP transport, system storage and presentation. Applications provide requests and decide what a successful upload response means. The core does not depend on a business API, account model, media viewer or JavaScript runtime.
 
+Hosts can draw progress and actions beside each resource, use the optional floating indicator and panel, or display both together. All presentations observe and control the same task ID. Attaching or closing a view does not change the task's lifetime. The optional UI is maintained as a separate module and is included only when needed.
+
 | Platform | Core | System storage | Optional UI |
 | --- | --- | --- | --- |
 | Android 5.0+ | `trasivo`, OkHttp | `trasivo-storage`, MediaStore and document URIs | `trasivo-ui`, Android Views |

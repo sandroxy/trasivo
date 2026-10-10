@@ -67,6 +67,33 @@ public class TransferCenterTest {
         assertEquals(1, center.snapshot().size());
         center.enqueue(request(), new Manual()); assertEquals(2, center.snapshot().size());
     }
+    @Test public void independentObserversReattachToTheSameRetriedTask() {
+        TransferCenter center = center(1); Manual operation = new Manual();
+        String id = center.enqueue(request(), operation);
+        List<List<TransferTask>> resource = new ArrayList<>(), panel = new ArrayList<>();
+        TransferCenter.Subscription resourceSubscription = center.observe(resource::add);
+        TransferCenter.Subscription panelSubscription = center.observe(panel::add);
+        operation.contexts.get(0).progress(40, 100);
+        assertEquals(40, resource.get(resource.size() - 1).get(0).completedBytes);
+        assertEquals(40, panel.get(panel.size() - 1).get(0).completedBytes);
+        panelSubscription.close(); int detachedCount = panel.size();
+        assertTrue(center.cancel(id)); assertTrue(center.retry(id));
+        assertEquals(2, operation.contexts.size());
+        assertEquals(detachedCount, panel.size());
+        panelSubscription = center.observe(panel::add);
+        TransferTask reattached = panel.get(panel.size() - 1).get(0);
+        assertEquals(id, reattached.id); assertEquals(2, reattached.attempt);
+        assertEquals(resource.get(resource.size() - 1).get(0).attemptId, reattached.attemptId);
+        resourceSubscription.close(); int hiddenCount = resource.size();
+        operation.completions.get(1).succeed(Collections.singletonMap("uri", "saved"));
+        assertEquals(hiddenCount, resource.size());
+        assertEquals(TransferTask.State.SUCCEEDED, panel.get(panel.size() - 1).get(0).state);
+        resourceSubscription = center.observe(resource::add);
+        assertEquals("saved", resource.get(resource.size() - 1).get(0).result.get("uri"));
+        assertEquals(1, center.snapshot().size());
+        assertEquals(2, operation.contexts.size());
+        resourceSubscription.close(); panelSubscription.close();
+    }
     @Test public void synchronousCompletionDoesNotCancelFinishedOperation() {
         TransferCenter center = center(1);
         int[] canceled = {0};

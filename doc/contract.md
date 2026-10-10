@@ -37,3 +37,7 @@ Call UI attachment, presentation, configuration updates and detachment on the ma
 ## Modules
 
 The core exposes snapshots and operations without importing the UI or Photos/MediaStore adapters. Optional UI imports only the core. Optional storage imports only the core and system APIs. A future framework adapter can forward the public contract without relocating task ownership into JavaScript. Product protocol and resumable transport extensions require their own verified contracts; the current UI does not advertise unsupported controls.
+
+Host-owned resource views and the bundled overlay are independent consumers of the same center. They may coexist; attaching, detaching, or replacing presentation must not create a transfer or change its lifetime. No UI-mode setting is required in the core. UI configuration affects the bundled presentation only.
+
+The host associates a resource with the task ID returned by `enqueue`, and reuses that ID across screen recreation and retries. Subscribing dispatches an initial snapshot on the configured observer executor/queue, including work started before attachment. Missing records can mean removal, eviction, or a new process; they do not prove success or authorize another transfer. Durable business state and duplicate-start policy belong to the host. Actions return whether the current task state allowed them, so hosts must account for a state change between drawing a control and invoking it.

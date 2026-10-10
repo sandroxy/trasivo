@@ -85,6 +85,42 @@ final class TransferCenterTests: XCTestCase {
         operation.complete(0, .success(["uri": "saved"])); operation.complete(0, .failure(TransferFailure("late_error")))
         XCTAssertEqual(center.snapshot()[0].state, .succeeded)
     }
+    func testIndependentObserversReattachToTheSameRetriedTask() throws {
+        let callbacks = DispatchQueue(label: "test.observers"), workers = DispatchQueue(label: "test.operations")
+        let center = try TransferCenter(callbacks: callbacks, workers: workers), operation = Manual()
+        let id = center.enqueue(try request(), operation: operation)
+        workers.sync {}
+        var resource: [[TransferSnapshot]] = [], panel: [[TransferSnapshot]] = []
+        var resourceSubscription = center.observe { resource.append($0) }
+        var panelSubscription = center.observe { panel.append($0) }
+        try operation.context(0).progress(completedBytes: 40, totalBytes: 100)
+        callbacks.sync {
+            XCTAssertEqual(resource.last?.first?.completedBytes, 40)
+            XCTAssertEqual(panel.last?.first?.completedBytes, 40)
+        }
+        panelSubscription.cancel()
+        let detachedCount = callbacks.sync { panel.count }
+        XCTAssertTrue(center.cancel(id)); XCTAssertTrue(center.retry(id)); workers.sync {}
+        callbacks.sync { XCTAssertEqual(panel.count, detachedCount) }
+        panelSubscription = center.observe { panel.append($0) }
+        callbacks.sync {
+            XCTAssertEqual(panel.last?.first?.id, id)
+            XCTAssertEqual(panel.last?.first?.attempt, 2)
+            XCTAssertEqual(resource.last?.first?.attemptID, panel.last?.first?.attemptID)
+        }
+        resourceSubscription.cancel()
+        let hiddenCount = callbacks.sync { resource.count }
+        operation.complete(1, .success(["uri": "saved"]))
+        callbacks.sync {
+            XCTAssertEqual(resource.count, hiddenCount)
+            XCTAssertEqual(panel.last?.first?.state, .succeeded)
+        }
+        resourceSubscription = center.observe { resource.append($0) }
+        callbacks.sync { XCTAssertEqual(resource.last?.first?.result["uri"], "saved") }
+        XCTAssertEqual(center.snapshot().count, 1)
+        XCTAssertEqual(center.snapshot()[0].attempt, 2)
+        resourceSubscription.cancel(); panelSubscription.cancel()
+    }
     func testMultipartWritesLargeBodyWithoutChangingSource() throws {
         let source = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let payload = Data(repeating: 0x61, count: 192 * 1024)

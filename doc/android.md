@@ -1,6 +1,6 @@
 # Android integration
 
-Require Android API 21+, JDK 17 for building, and the pinned Gradle wrapper. The source uses Java 11 bytecode. During source development, use a Gradle composite build and substitute the three explicit coordinates with their corresponding projects. Consumer generation is provided by [Integrated Plugins](https://github.com/sandroxy/integrated-plugins). No Maven release is currently declared.
+Require Android API 21+, JDK 17 for building, and the pinned Gradle wrapper. The source uses Java 11 bytecode. Select `trasivo` for task management and HTTP transfers; add `trasivo-storage` for MediaStore or document destinations and `trasivo-ui` only for the bundled overlay. During source development, use a Gradle composite build to substitute the selected coordinates with their corresponding projects. Consumer generation is provided by [Integrated Plugins](https://github.com/sandroxy/integrated-plugins). No Maven release is currently declared.
 
 Retain an application-scoped `TransferCenter` and `OkHttpClient`. The HTTP client remains host-owned; configure timeouts, authentication and network policy there. Supply fresh requests on every retry.
 
@@ -14,7 +14,7 @@ String id = center.enqueue(
         new MediaDestination(application, "photo.jpg", "image/jpeg")));
 ```
 
-Import core types from `com.sandrox.trasivo`, storage from `com.sandrox.trasivo.storage`, UI from `com.sandrox.trasivo.ui`, and HTTP types from `okhttp3`.
+Import core types from `com.sandrox.trasivo`, storage from `com.sandrox.trasivo.storage`, and HTTP types from `okhttp3`. The download above does not use the UI module. Ask for any required destination permission before enqueueing it.
 
 `HttpTransfers.upload(client, requests, handler)` requires a repeatable, non-duplex body. For multipart form requests, use OkHttp's `MultipartBody` with a file-backed `RequestBody`. The response handler receives status, headers and bounded body bytes. Parse and validate the application's protocol there; return small safe result metadata or throw on rejection. Return no raw server response in task history.
 
@@ -26,7 +26,49 @@ Import core types from `com.sandrox.trasivo`, storage from `com.sandrox.trasivo.
 
 The host initiates permission prompts and file pickers. The UI never requests storage or overlay permission. Select MIME types from trusted metadata; do not infer image/video type from an arbitrary signed URL.
 
-## UI configuration
+## Host-owned presentation
+
+Save the ID returned by `enqueue` in the host's resource model. When a screen is recreated, bind to that ID instead of enqueueing again. A resource card and the bundled panel may observe and control the same center concurrently. Each observer receives an initial snapshot and subsequent changes.
+
+```java
+// Members of a host screen; center and the resource's task ID outlive it.
+private TransferCenter.Subscription subscription;
+
+void bind(TransferCenter center, String taskId) {
+    stopObserving();
+    subscription = center.observe(tasks -> {
+        TransferTask selected = null;
+        for (TransferTask task : tasks) {
+            if (task.id.equals(taskId)) { selected = task; break; }
+        }
+        if (selected == null) {
+            renderUnavailable(); // Removed, evicted, or from a previous process.
+            return;
+        }
+        renderTask(selected);
+        retryButton.setEnabled(selected.canRetry());
+        cancelButton.setEnabled(selected.canCancel());
+    });
+    retryButton.setOnClickListener(view -> {
+        if (!center.retry(taskId)) renderActionUnavailable();
+    });
+    cancelButton.setOnClickListener(view -> {
+        if (!center.cancel(taskId)) renderActionUnavailable();
+    });
+}
+
+void stopObserving() {
+    if (subscription != null) { subscription.close(); subscription = null; }
+}
+```
+
+The `render…` functions and buttons belong to the host. Call `stopObserving` when the screen's observation lifetime ends, such as `Activity.onDestroy`. `renderUnavailable` must clear stale progress and disable task actions; absence is not success. `renderTask` uses the state as the authority: show indeterminate progress for an unknown total, a separate saving/validation state for `FINALIZING`, and success only for `SUCCEEDED`. A full byte count alone is insufficient. An operation can become unavailable between rendering a button and tapping it, so handle a false action result.
+
+Use one screen-level subscription to route snapshots by task ID when rendering multiple resources. Closing a subscription does not cancel work. Retry preserves the task ID and changes the attempt ID; removal or history eviction ends that record's observation. Resource identity, duplicate-start prevention, and any durable business result belong to the host. In-process snapshots are not a durable resource database.
+
+## Optional UI configuration
+
+Add `trasivo-ui` and import `com.sandrox.trasivo.ui` only when using the bundled presentation. There is no core UI-mode flag: without a `TransferOverlay`, transfers run with host-owned presentation alone.
 
 ```java
 TransferUIConfiguration.Theme theme =
@@ -39,6 +81,8 @@ overlay.updateConfiguration(new TransferUIConfiguration()); // defaults, also up
 // Activity.onDestroy:
 overlay.close();
 ```
+
+Create a new overlay with the same center to reattach it. Closing or attaching the overlay does not enqueue, cancel, retry, or remove tasks. Host resource views can remain subscribed throughout. The bundled UI is an independently usable, maintained presentation module; its theme and language settings do not configure host-owned views.
 
 The full theme constructor accepts primary, background, surface, text, muted text, border, success and danger ARGB colors. Passing null for configuration, language or theme uses the documented default. A null title uses the localized built-in title. For dark mode, resolve host colors from its current resources and apply a new configuration after the host appearance changes. Default colors deliberately remain fixed.
 
