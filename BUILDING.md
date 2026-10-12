@@ -22,6 +22,8 @@ For independent consumption without the UI module, run `./gradlew :trasivo:testR
 
 `./gradlew publish` writes Maven output only to the ignored `native/android/build/maven` directory. It does not upload to a remote repository. Release distribution, signing and publication require their own reviewed contract; no published artifacts or immutable release acceptance are declared here.
 
-Native manual consumers and their shared scenarios are maintained in [Integrated Plugins](https://github.com/sandroxy/integrated-plugins). Its development entry accepts an explicit source path and generates fixed, ignored projects. Build or open those consumers for manual testing; do not copy product implementation into them.
+Native and React Native manual consumers and their shared scenarios are maintained in [Integrated Plugins](https://github.com/sandroxy/integrated-plugins). Its development entry accepts an explicit source path and generates fixed, ignored projects. Build or open those consumers for manual testing; do not copy product implementation into them.
+
+For RN source development, select `react-native-android` or `react-native-ios` through that repository's `development/run.rb`. Both targets share one host and dependency cache. Android preparation builds native AARs; iOS preparation copies canonical Swift sources into three local pods. Host installation, Codegen, CocoaPods and compilation run with `--build`. The shared RN build policy retains precompiled React Native dependencies by default. See the [adapter contract](adapters/react-native/README.md) for runtime lifetimes, permission setup and source-pod installation.
 
 UI strings are authored in `resources/strings.json`. Run `python3 scripts/sync-ui-resources.py` after changing the catalog, then check in the generated Java and Swift tables together. Every locale must provide the same keys.

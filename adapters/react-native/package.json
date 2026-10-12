@@ -1,0 +1,21 @@
+{
+  "name": "@sandrox/trasivo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "React Native adapter for the Trasivo native transfer center",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/sandroxy/trasivo.git",
+  "main": "src/index.ts",
+  "react-native": "src/index.ts",
+  "types": "src/index.ts",
+  "files": ["src", "android", "ios", "plugin", "app.plugin.js", "react-native.config.js", "TrasivoReactNative.podspec", "README.md", "LICENSE"],
+  "peerDependencies": {"react": ">=19.1.0", "react-native": ">=0.81.5", "@expo/config-plugins": ">=54.0.0"},
+  "peerDependenciesMeta": {"@expo/config-plugins": {"optional": true}},
+  "codegenConfig": {
+    "name": "TrasivoSpec",
+    "type": "modules",
+    "jsSrcsDir": "src/specs",
+    "android": {"javaPackageName": "com.sandrox.trasivo.reactnative"},
+    "ios": {"modules": {"Trasivo": {"unstableRequiresMainQueueSetup": true}}}
+  }
+}

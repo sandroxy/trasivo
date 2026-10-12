@@ -2,7 +2,7 @@
 
 Native upload and download tasks with an optional floating indicator and transfer panel.
 
-[简体中文](README.zh-CN.md) · [Contract](doc/contract.md) · [Android](doc/android.md) · [iOS](doc/ios.md) · [Building](BUILDING.md)
+[简体中文](README.zh-CN.md) · [Contract](doc/contract.md) · [Android](doc/android.md) · [iOS](doc/ios.md) · [React Native](adapters/react-native/README.md) · [Building](BUILDING.md)
 
 Trasivo separates task ownership, HTTP transport, system storage and presentation. Applications provide requests and decide what a successful upload response means. The core does not depend on a business API, account model, media viewer or JavaScript runtime.
 
@@ -21,6 +21,6 @@ Downloads succeed only after their destination finishes saving. Uploads succeed 
 
 Task history and execution are not durable across process termination. There is no pause, byte-range recovery, resumable multipart protocol or guaranteed background execution. HTTP `multipart/form-data` support is request encoding, not resumable uploading. See the [contract](doc/contract.md) before integrating.
 
-This repository provides source packages; `0.1.0` is source metadata, not a claim of a published Maven or Swift release. Native development consumers live in [Integrated Plugins](https://github.com/sandroxy/integrated-plugins). React Native and other framework adapters are not included.
+This repository provides source packages; `0.1.0` is source metadata, not a claim of a published Maven, Swift or npm release. The [React Native adapter](adapters/react-native/README.md) adds typed task subscriptions, host request/validation callbacks and optional native presentation. Native and RN development consumers live in [Integrated Plugins](https://github.com/sandroxy/integrated-plugins).
 
 Licensed under [Apache-2.0](LICENSE). Dependencies and provenance are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

@@ -9,6 +9,8 @@ Trasivo's task center, storage adapters and presentation code are maintained in 
 | Gradle wrapper 8.14.5 | Reproducible Android build bootstrap | [Apache-2.0](https://github.com/gradle/gradle/blob/master/LICENSE) |
 | JUnit 4.13.2 | Local Android unit tests | [EPL-1.0](https://github.com/junit-team/junit4/blob/main/LICENSE-junit.txt) |
 | MockWebServer 5.4.0 | Local Android HTTP fixtures | [Apache-2.0](https://github.com/lysine-dev/okhttp/blob/master/LICENSE.txt) |
+| React Native (host dependency) | Optional RN bridge, Codegen and event delivery | [MIT](https://github.com/facebook/react-native/blob/main/LICENSE) |
+| Expo config plugins (optional host dependency) | RN host permission and CocoaPods configuration | [MIT](https://github.com/expo/expo/blob/main/LICENSE) |
 
 iOS uses Apple's Foundation, URLSession, Photos and UIKit system frameworks. Android storage uses platform MediaStore and document-provider APIs. Transitive dependency licenses remain with their respective distributions; downstream distributors must preserve applicable notices.
 

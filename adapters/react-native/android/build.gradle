@@ -1,0 +1,36 @@
+plugins {
+    id 'com.android.library'
+    id 'com.facebook.react' apply false
+}
+def newArchitecture = project.findProperty('newArchEnabled')?.toString() == 'true'
+if (newArchitecture) { apply plugin: 'com.facebook.react' }
+def hostValue = { key, fallback -> rootProject.ext.has(key) ? rootProject.ext.get(key) : fallback }
+android {
+    namespace 'com.sandrox.trasivo.reactnative'
+    compileSdk hostValue('compileSdkVersion', 36)
+    defaultConfig {
+        minSdk hostValue('minSdkVersion', 24)
+        buildConfigField 'boolean', 'IS_NEW_ARCHITECTURE_ENABLED', newArchitecture.toString()
+    }
+    buildFeatures { buildConfig true }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    sourceSets.main.java.srcDirs += newArchitecture ? 'src/newarch/java' : 'src/legacy/java'
+}
+dependencies {
+    // The RN Gradle plugin substitutes this with the installed host version.
+    implementation 'com.facebook.react:react-android'
+    implementation files('libs/trasivo.aar', 'libs/trasivo-storage.aar', 'libs/trasivo-ui.aar')
+    implementation 'com.squareup.okhttp3:okhttp:5.4.0'
+    implementation 'com.squareup.okio:okio:3.18.2'
+}
+if (newArchitecture) {
+    react {
+        root = file('..')
+        jsRootDir = file('../src/specs')
+        libraryName = 'TrasivoSpec'
+        codegenJavaPackageName = 'com.sandrox.trasivo.reactnative'
+    }
+}

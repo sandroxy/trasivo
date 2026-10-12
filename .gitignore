@@ -25,3 +25,5 @@ local.properties
 *.p8
 *.mobileprovision
 /doc/dev/
+/adapters/react-native/android/libs/
+/adapters/react-native/ios/Core/

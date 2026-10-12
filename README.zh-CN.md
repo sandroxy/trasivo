@@ -2,7 +2,7 @@
 
 原生上传下载任务中心，提供可选的应用内悬浮球和任务面板。
 
-[English](README.md) · [行为契约](doc/contract.md) · [Android 接入](doc/android.md) · [iOS 接入](doc/ios.md) · [本地构建](BUILDING.md)
+[English](README.md) · [行为契约](doc/contract.md) · [Android 接入](doc/android.md) · [iOS 接入](doc/ios.md) · [React Native 接入](adapters/react-native/README.md) · [本地构建](BUILDING.md)
 
 任务管理、HTTP 传输、系统存储和界面分别归属独立模块。宿主负责请求、鉴权、账号隔离及上传响应的业务成功判断；核心不认识聊天、OSS、消息发布或 JavaScript 运行时。
 
@@ -21,4 +21,4 @@
 
 目前不包含进程结束后的任务恢复、暂停、断点续传、可恢复分片协议或后台持续运行保证。`multipart/form-data` 只是 HTTP 请求编码，不等于断点续传。详细限制和生命周期见[行为契约](doc/contract.md)。
 
-当前提供源码包，`0.1.0` 是源码版本信息，不表示已有 Maven 或 Swift 正式版本发布。原生开发消费者放在 [Integrated Plugins](https://github.com/sandroxy/integrated-plugins)，本仓不包含 RN 或其他跨端桥接层。
+当前提供源码包，`0.1.0` 是源码版本信息，不表示已有 Maven、Swift 或 npm 正式版本发布。[RN 适配层](adapters/react-native/README.md)提供类型化任务订阅、宿主请求及响应校验回调，以及可选原生界面。原生与 RN 开发消费者均放在 [Integrated Plugins](https://github.com/sandroxy/integrated-plugins)。

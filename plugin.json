@@ -5,6 +5,13 @@
   "version": "0.1.0",
   "repository": "https://github.com/sandroxy/trasivo.git",
   "license": "Apache-2.0",
+  "adapters": {
+    "reactNative": {
+      "path": "adapters/react-native",
+      "package": "@sandrox/trasivo",
+      "minimumVersion": "0.81.5"
+    }
+  },
   "native": {
     "android": {
       "group": "io.github.sandroxy",
