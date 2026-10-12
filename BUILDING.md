@@ -6,6 +6,7 @@ Prerequisites: Python 3, JDK 17, Android SDK 36, and Xcode with an iOS SDK and S
 
 ```sh
 python3 scripts/sync-ui-resources.py --check
+python3 -B -m unittest discover -s tests/fixtures -p 'test_*.py'
 cd native/android
 ./gradlew testReleaseUnitTest lintRelease assembleRelease
 cd ../..

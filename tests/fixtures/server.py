@@ -9,6 +9,9 @@ from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 class Handler(BaseHTTPRequestHandler):
+    # Every response has a Content-Length. Keep connection reuse consistent
+    # with clients that deliberately disable automatic request retries.
+    protocol_version = 'HTTP/1.1'
     def log_message(self, *_): pass
     def do_GET(self):
         if self.path == '/failure':
